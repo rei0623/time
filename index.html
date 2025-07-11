@@ -465,6 +465,81 @@
           }
         }
     </style>
+    <!-- 追加CSS（head内） -->
+    <style>
+        @media (max-width: 600px) {
+          .mobile-timer .countdown-big {
+            font-size: 3.5em;
+            font-weight: bold;
+            color: #d9534f;
+            text-align: center;
+            margin: 30px 0 10px 0;
+            letter-spacing: 2px;
+          }
+          .mobile-timer .event-big {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #0056b3;
+            text-align: center;
+            margin-bottom: 10px;
+          }
+          .mobile-timer .progress-container {
+            height: 18px;
+            margin: 25px 0 10px 0;
+            border-radius: 12px;
+            background: #e9ecef;
+            overflow: hidden;
+          }
+          .mobile-timer .progress-bar {
+            height: 18px;
+            border-radius: 12px;
+            background: linear-gradient(90deg, #28a745, #ffc107, #dc3545);
+            transition: width 0.3s;
+          }
+          .mobile-timer .presenter-mobile {
+            font-size: 1.1em;
+            color: #333;
+            text-align: center;
+            margin-bottom: 10px;
+          }
+          .mobile-schedule-list {
+            margin: 0;
+            padding: 0;
+            list-style: none;
+          }
+          .mobile-schedule-card {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+            margin-bottom: 18px;
+            padding: 18px 14px 14px 14px;
+            font-size: 1.15em;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            border-left: 6px solid #007bff;
+            transition: background 0.2s, border 0.2s;
+          }
+          .mobile-schedule-card.active {
+            background: #fffbe6;
+            border-left: 8px solid #ffc107;
+          }
+          .mobile-schedule-card .time {
+            font-weight: bold;
+            color: #007bff;
+            font-size: 1.1em;
+          }
+          .mobile-schedule-card .name {
+            font-weight: bold;
+            color: #333;
+            font-size: 1.2em;
+          }
+          .mobile-schedule-card .presenter {
+            color: #888;
+            font-size: 0.95em;
+          }
+        }
+    </style>
 </head>
 <body>
 
@@ -1123,6 +1198,80 @@
           };
         }
     </script>
+    <!-- タイマー・スケジュールのモバイル描画用JS（body末尾script内） -->
+    <script>
+function renderMobileTimer() {
+  // 現在のイベント取得
+  let now = new Date();
+  let currentEvent = null;
+  let currentEventIndex = -1;
+  for(let i=0; i < schedule.length; i++) {
+    const event = schedule[i];
+    const start = createDateFromTimeString(event.start);
+    const end = createDateFromTimeString(event.end);
+    if (now >= start && now < end) {
+      currentEvent = event;
+      currentEventIndex = i;
+      break;
+    }
+  }
+  // 残り時間計算
+  let countdown = '--:--';
+  let progress = 0;
+  if (currentEvent) {
+    const end = createDateFromTimeString(currentEvent.end);
+    const total = (createDateFromTimeString(currentEvent.end) - createDateFromTimeString(currentEvent.start)) / 1000;
+    const remain = Math.ceil((end - now) / 1000);
+    const min = Math.floor(remain / 60);
+    const sec = remain % 60;
+    countdown = `${String(min).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
+    progress = Math.min(100, Math.max(0, ((total-remain)/total)*100));
+  }
+  // HTML生成
+  let html = '';
+  html += `<div class='event-big'>${currentEvent ? currentEvent.name : '開始までお待ちください...'}</div>`;
+  html += `<div class='countdown-big'>${countdown}</div>`;
+  html += `<div class='progress-container'><div class='progress-bar' style='width:${progress}%;'></div></div>`;
+  if(currentEvent && currentEvent.presenter) {
+    html += `<div class='presenter-mobile'>発表者: ${currentEvent.presenter}</div>`;
+  }
+  document.getElementById('mobileTimer').innerHTML = html;
+}
+function renderMobileSchedule() {
+  let now = new Date();
+  let currentEventIndex = -1;
+  for(let i=0; i < schedule.length; i++) {
+    const event = schedule[i];
+    const start = createDateFromTimeString(event.start);
+    const end = createDateFromTimeString(event.end);
+    if (now >= start && now < end) {
+      currentEventIndex = i;
+      break;
+    }
+  }
+  let html = '<ul class="mobile-schedule-list">';
+  schedule.forEach((item, idx) => {
+    let active = idx === currentEventIndex ? 'active' : '';
+    html += `<li class='mobile-schedule-card ${active}'>`;
+    html += `<div class='time'>${item.start} - ${item.end}</div>`;
+    html += `<div class='name'>${item.name}</div>`;
+    if(item.presenter) html += `<div class='presenter'>${item.presenter}</div>`;
+    html += `</li>`;
+  });
+  html += '</ul>';
+  document.getElementById('mobileSchedule').innerHTML = html;
+}
+// モバイルUI切り替え時に描画
+function updateMobileViews() {
+  if (window.innerWidth <= 600) {
+    renderMobileTimer();
+    renderMobileSchedule();
+  }
+}
+window.addEventListener('resize', updateMobileViews);
+setInterval(updateMobileViews, 1000);
+document.addEventListener('DOMContentLoaded', updateMobileViews);
+</script>
 
 </body>
 </html>
