@@ -1,0 +1,1011 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>発表会タイムテーブル</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', 'Meiryo', 'system-ui', sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+        .main-container {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 40px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        @media (max-width: 768px) {
+            .main-container {
+                flex-direction: column;
+                gap: 20px;
+                padding: 10px;
+            }
+            .left-section, .right-section {
+                width: 100%;
+                max-width: none;
+            }
+            .timer-container {
+                padding: 20px;
+                margin-bottom: 15px;
+            }
+            .timer-container.large {
+                padding: 30px;
+                max-width: 95vw;
+            }
+            .mode-switch {
+                position: static;
+                margin-bottom: 20px;
+                text-align: center;
+            }
+            .emergency-stop {
+                position: fixed;
+                top: 10px;
+                left: 10px;
+                padding: 10px 15px;
+                font-size: 0.9em;
+            }
+            #currentEvent {
+                font-size: 2em;
+            }
+            #countdown {
+                font-size: 3em;
+            }
+            .timer-container.large #currentEvent {
+                font-size: 3em;
+            }
+            .timer-container.large #countdown {
+                font-size: 6em;
+            }
+        }
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+            .timer-container {
+                padding: 15px;
+            }
+            #currentEvent {
+                font-size: 1.8em;
+            }
+            #countdown {
+                font-size: 2.5em;
+            }
+        }
+        .left-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .right-section {
+            flex: 1;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+        .right-section::-webkit-scrollbar {
+            width: 8px;
+        }
+        .right-section::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+        .right-section::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
+        }
+        .right-section::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+        h1 {
+            color: #444;
+        }
+        .timer-container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            text-align: center;
+            width: 100%;
+            max-width: 500px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+        .timer-container.large {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1000;
+            background-color: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            max-width: 90vw;
+            max-height: 90vh;
+            padding: 50px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+        .timer-container.large #currentTime {
+            font-size: 2.5em;
+        }
+        .timer-container.large #currentEvent {
+            font-size: 4em;
+            min-height: 80px;
+        }
+        .timer-container.large #countdown {
+            font-size: 8em;
+            margin: 20px 0;
+        }
+        .timer-container.large #nextEvent {
+            font-size: 2em;
+        }
+        .timer-container.large #testBell {
+            font-size: 1.2em;
+            padding: 15px 30px;
+        }
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            display: none;
+        }
+        .overlay.active {
+            display: block;
+        }
+        .mode-switch {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1001;
+            background-color: #fff;
+            padding: 10px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .mode-switch button {
+            padding: 8px 16px;
+            margin: 0 5px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .mode-switch button.active {
+            background-color: #007bff;
+            color: white;
+        }
+        .mode-switch button.inactive {
+            background-color: #f8f9fa;
+            color: #6c757d;
+        }
+        .practice-controls {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-top: 20px;
+            text-align: center;
+        }
+        .practice-info {
+            background-color: #e8f5e8;
+            border: 2px solid #28a745;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        .practice-info h3 {
+            color: #28a745;
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+        .practice-info ul {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+        .practice-info li {
+            margin-bottom: 5px;
+        }
+        .practice-controls button {
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .practice-controls .start-btn {
+            background-color: #28a745;
+            color: white;
+        }
+        .practice-controls .pause-btn {
+            background-color: #ffc107;
+            color: #212529;
+        }
+        .practice-controls .reset-btn {
+            background-color: #dc3545;
+            color: white;
+        }
+        .practice-controls .skip-btn {
+            background-color: #6f42c1;
+            color: white;
+        }
+        .practice-mode .timer-container {
+            border: 3px solid #28a745;
+        }
+        .practice-mode .timer-container.large {
+            border: 5px solid #28a745;
+        }
+        .progress-container {
+            width: 100%;
+            background-color: #e9ecef;
+            border-radius: 10px;
+            margin: 15px 0;
+            overflow: hidden;
+        }
+        .progress-bar {
+            height: 8px;
+            background: linear-gradient(90deg, #28a745, #ffc107, #dc3545);
+            border-radius: 10px;
+            transition: width 0.3s ease;
+        }
+        .timer-container.large .progress-container {
+            margin: 25px 0;
+        }
+        .timer-container.large .progress-bar {
+            height: 12px;
+        }
+        .current-presenter {
+            background-color: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 8px;
+            padding: 10px;
+            margin: 10px 0;
+            text-align: center;
+            font-weight: bold;
+        }
+        .time-warning {
+            animation: pulse 1s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        .emergency-stop {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1001;
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 15px 20px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
+            display: none;
+        }
+        .emergency-stop:hover {
+            background-color: #c82333;
+        }
+        .edit-schedule {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-top: 20px;
+            display: none;
+        }
+        .edit-schedule h3 {
+            color: #007bff;
+            margin-top: 0;
+            margin-bottom: 15px;
+        }
+        .edit-schedule input {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .edit-schedule button {
+            padding: 8px 16px;
+            margin: 5px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .edit-schedule .save-btn {
+            background-color: #28a745;
+            color: white;
+        }
+        .edit-schedule .cancel-btn {
+            background-color: #6c757d;
+            color: white;
+        }
+        .edit-schedule .add-btn {
+            background-color: #007bff;
+            color: white;
+        }
+        .edit-schedule .remove-btn {
+            background-color: #dc3545;
+            color: white;
+        }
+        .schedule-row {
+            display: flex;
+            gap: 10px;
+            margin: 5px 0;
+            align-items: center;
+        }
+        .schedule-row input {
+            flex: 1;
+        }
+        .schedule-row button {
+            padding: 5px 10px;
+            font-size: 0.9em;
+        }
+        #currentTime {
+            font-size: 1.5em;
+            color: #555;
+            margin-bottom: 10px;
+        }
+        #currentEvent {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #0056b3;
+            min-height: 50px;
+        }
+        #countdown {
+            font-size: 4em;
+            font-weight: bold;
+            color: #d9534f;
+            margin-top: 10px;
+        }
+        #nextEvent {
+            font-size: 1.2em;
+            color: #777;
+            margin-top: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: center;
+        }
+        th {
+            background-color: #007bff;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .active {
+            background-color: #ffc107 !important;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- モード切り替え -->
+    <div class="mode-switch">
+        <button id="liveMode" class="active">本番モード</button>
+        <button id="practiceMode" class="inactive">練習モード</button>
+    </div>
+
+    <h1 style="text-align: center; margin-bottom: 30px;">創る\_タイムテーブル</h1>
+
+    <div class="main-container">
+        <div class="left-section">
+            <div class="timer-container">
+                <div id="currentTime">--:--:--</div>
+                <div id="currentEvent">開始までお待ちください...</div>
+                <div id="countdown">--:--</div>
+                <div class="progress-container">
+                    <div class="progress-bar" id="progressBar" style="width: 0%"></div>
+                </div>
+                <div class="current-presenter" id="currentPresenter" style="display: none;">
+                    現在の発表者: <span id="presenterName">--</span>
+                </div>
+                <div id="nextEvent">次の予定: ...</div>
+                <div style="margin-top: 20px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+                    <button id="testBell" style="padding: 10px 20px; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">ベル音をテスト</button>
+                    <button id="toggleLarge" style="padding: 10px 20px; background-color: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer;">タイマー拡大</button>
+                </div>
+                
+                <!-- 練習モード用コントロール -->
+                <div class="practice-controls" id="practiceControls" style="display: none;">
+                    <div class="practice-info">
+                        <h3>📚 練習モード</h3>
+                        <p><strong>8分間の発表練習</strong>：7分経過時と終了時にベルが鳴ります</p>
+                        <ul>
+                            <li><strong>開始</strong>：8分間のタイマーを開始</li>
+                            <li><strong>リセット</strong>：タイマーをリセットして最初から</li>
+                        </ul>
+                        <p><strong>ベル音</strong>：7分経過時（残り1分）と8分経過時（終了）に鳴ります</p>
+                    </div>
+                    <div style="margin-bottom: 15px;">
+                        <strong>練習コントロール</strong>
+                    </div>
+                    <button class="start-btn" id="startPractice">▶️ 開始</button>
+                    <button class="reset-btn" id="resetPractice">🔄 リセット</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="right-section">
+            <div style="margin-bottom: 15px; text-align: center;">
+                <button id="editScheduleBtn" style="padding: 10px 20px; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold;">📝 スケジュール編集</button>
+            </div>
+            
+            <div class="edit-schedule" id="editSchedule">
+                <h3>📅 スケジュール編集</h3>
+                <div id="scheduleEditor">
+                    <!-- スケジュール編集フォームがここに生成されます -->
+                </div>
+                <div style="margin-top: 15px;">
+                    <button class="add-btn" id="addScheduleRow">➕ 行を追加</button>
+                    <button class="save-btn" id="saveSchedule">💾 保存</button>
+                    <button class="cancel-btn" id="cancelEdit">❌ キャンセル</button>
+                </div>
+            </div>
+            
+            <table id="scheduleTable">
+        <thead>
+            <tr>
+                <th>時間</th>
+                <th>発表版</th>
+                <th>テーマ</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td>10:55-11:00</td><td></td><td>オープニングセレモニー</td></tr>
+            <tr><td>11:00-11:08</td><td>1班</td><td></td></tr>
+            <tr><td>11:08-11:16</td><td>2班</td><td></td></tr>
+            <tr><td>11:16-11:24</td><td>3班</td><td></td></tr>
+            <tr><td>11:24-11:32</td><td>4班</td><td></td></tr>
+            <tr><td>11:32-11:40</td><td>5班</td><td></td></tr>
+            <tr><td>11:40-11:48</td><td>6班</td><td></td></tr>
+            <tr><td>11:48-11:56</td><td>7班</td><td></td></tr>
+            <tr><td>11:56-12:04</td><td>8班</td><td></td></tr>
+            <tr><td>12:04-12:12</td><td>9班</td><td></td></tr>
+            <tr><td>12:12-13:20</td><td></td><td>(休憩)</td></tr>
+            <tr><td>13:20-13:28</td><td>10班</td><td></td></tr>
+            <tr><td>13:28-13:36</td><td>11班</td><td></td></tr>
+            <tr><td>13:36-13:44</td><td>12班</td><td></td></tr>
+            <tr><td>13:44-13:52</td><td>13班</td><td></td></tr>
+            <tr><td>13:52-14:00</td><td>14班</td><td></td></tr>
+            <tr><td>14:00-14:08</td><td>15班</td><td></td></tr>
+            <tr><td>14:08-14:16</td><td>16班</td><td></td></tr>
+            <tr><td>14:16-14:24</td><td>17班</td><td></td></tr>
+            <tr><td>14:24-</td><td></td><td>講評</td></tr>
+            </tbody>
+        </table>
+        </div>
+    </div>
+    
+    <!-- 緊急停止ボタン -->
+    <button class="emergency-stop" id="emergencyStop">⏹️ 緊急停止</button>
+    
+    <!-- オーバーレイ -->
+    <div class="overlay" id="overlay"></div>
+    
+    <!-- ベルの音源 -->
+    <audio id="bellSound" preload="auto">
+        <source src="https://www.soundjay.com/misc/sounds/bell-ringing-05.wav" type="audio/wav">
+        <source src="https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3" type="audio/mpeg">
+    </audio>
+
+    <script>
+        let schedule = [
+            { name: "オープニングセレモニー", start: "10:55:00", end: "11:00:00", type: "other", presenter: "" },
+            { name: "1班 発表", start: "11:00:00", end: "11:08:00", type: "presentation", presenter: "" },
+            { name: "2班 発表", start: "11:08:00", end: "11:16:00", type: "presentation", presenter: "" },
+            { name: "3班 発表", start: "11:16:00", end: "11:24:00", type: "presentation", presenter: "" },
+            { name: "4班 発表", start: "11:24:00", end: "11:32:00", type: "presentation", presenter: "" },
+            { name: "5班 発表", start: "11:32:00", end: "11:40:00", type: "presentation", presenter: "" },
+            { name: "6班 発表", start: "11:40:00", end: "11:48:00", type: "presentation", presenter: "" },
+            { name: "7班 発表", start: "11:48:00", end: "11:56:00", type: "presentation", presenter: "" },
+            { name: "8班 発表", start: "11:56:00", end: "12:04:00", type: "presentation", presenter: "" },
+            { name: "9班 発表", start: "12:04:00", end: "12:12:00", type: "presentation", presenter: "" },
+            { name: "休憩", start: "12:12:00", end: "13:20:00", type: "other", presenter: "" },
+            { name: "10班 発表", start: "13:20:00", end: "13:28:00", type: "presentation", presenter: "" },
+            { name: "11班 発表", start: "13:28:00", end: "13:36:00", type: "presentation", presenter: "" },
+            { name: "12班 発表", start: "13:36:00", end: "13:44:00", type: "presentation", presenter: "" },
+            { name: "13班 発表", start: "13:44:00", end: "13:52:00", type: "presentation", presenter: "" },
+            { name: "14班 発表", start: "13:52:00", end: "14:00:00", type: "presentation", presenter: "" },
+            { name: "15班 発表", start: "14:00:00", end: "14:08:00", type: "presentation", presenter: "" },
+            { name: "16班 発表", start: "14:08:00", end: "14:16:00", type: "presentation", presenter: "" },
+            { name: "17班 発表", start: "14:16:00", end: "14:24:00", type: "presentation", presenter: "" },
+            { name: "講評", start: "14:24:00", end: "15:00:00", type: "other", presenter: "" }
+        ];
+        
+        // 通知再生済みフラグ
+        const playedFlags = {};
+
+        function createDateFromTimeString(timeString) {
+            const today = new Date();
+            const [hours, minutes, seconds] = timeString.split(':').map(Number);
+            return new Date(today.getFullYear(), today.getMonth(), today.getDate(), hours, minutes, seconds);
+        }
+
+        const bell = document.getElementById('bellSound');
+        const tableRows = document.querySelectorAll("#scheduleTable tbody tr");
+        
+        // モード管理
+        let currentMode = 'live'; // 'live' or 'practice'
+        let practiceTimer = null;
+        let practiceStartTime = null;
+        let isPracticeRunning = false;
+        let practiceElapsedTime = 0;
+        let practiceBellFlags = { sevenMin: false, eightMin: false };
+
+        function updateTimer() {
+            let now, currentEvent, currentEventIndex;
+            
+            // 緊急停止中は更新をスキップ
+            if (isEmergencyStopped && currentMode === 'live') {
+                return;
+            }
+            
+            if (currentMode === 'live') {
+                // 本番モード：実際の時刻を使用
+                now = new Date();
+                document.getElementById('currentTime').textContent = now.toLocaleTimeString('ja-JP');
+                
+                // 現在のイベントを探す
+                currentEventIndex = -1;
+                for(let i=0; i < schedule.length; i++) {
+                    const event = schedule[i];
+                    const start = createDateFromTimeString(event.start);
+                    const end = createDateFromTimeString(event.end);
+                    if (now >= start && now < end) {
+                        currentEvent = event;
+                        currentEventIndex = i;
+                        break;
+                    }
+                }
+            } else {
+                // 練習モード：8分間のタイマー
+                if (isPracticeRunning) {
+                    practiceElapsedTime = Date.now() - practiceStartTime;
+                }
+                
+                const totalSeconds = Math.floor(practiceElapsedTime / 1000);
+                const minutes = Math.floor(totalSeconds / 60);
+                const seconds = totalSeconds % 60;
+                
+                document.getElementById('currentTime').textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+                document.getElementById('currentEvent').textContent = '発表練習';
+                
+                // 残り時間を計算（8分 = 480秒）
+                const remainingSeconds = Math.max(0, 480 - totalSeconds);
+                const remainingMinutes = Math.floor(remainingSeconds / 60);
+                const remainingSecs = remainingSeconds % 60;
+                
+                if (remainingSeconds > 0) {
+                    document.getElementById('countdown').textContent = `${String(remainingMinutes).padStart(2, '0')}:${String(remainingSecs).padStart(2, '0')}`;
+                } else {
+                    document.getElementById('countdown').textContent = '00:00';
+                }
+                
+                // ベル音の制御
+                if (isPracticeRunning) {
+                    // 7分経過時（420秒）のベル
+                    if (totalSeconds >= 420 && !practiceBellFlags.sevenMin) {
+                        bell.play().catch(function(error) {
+                            console.log('ベル音の再生に失敗しました:', error);
+                        });
+                        practiceBellFlags.sevenMin = true;
+                    }
+                    
+                    // 8分経過時（480秒）のベル
+                    if (totalSeconds >= 480 && !practiceBellFlags.eightMin) {
+                        bell.play().catch(function(error) {
+                            console.log('ベル音の再生に失敗しました:', error);
+                        });
+                        practiceBellFlags.eightMin = true;
+                    }
+                }
+                
+                document.getElementById('nextEvent').textContent = '練習モード';
+                return; // 練習モードでは他の処理をスキップ
+            }
+
+            // テーブルのハイライトを更新
+            tableRows.forEach((row, index) => {
+                if(index === currentEventIndex) {
+                    row.classList.add('active');
+                } else {
+                    row.classList.remove('active');
+                }
+            });
+
+            if (currentEvent) {
+                document.getElementById('currentEvent').textContent = currentEvent.name;
+
+                const end = createDateFromTimeString(currentEvent.end);
+                const remaining_ms = end - now;
+                const remaining_sec_total = Math.ceil(remaining_ms / 1000);
+                
+                const minutes = Math.floor(remaining_sec_total / 60);
+                const seconds = remaining_sec_total % 60;
+                document.getElementById('countdown').textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+                
+                // プログレスバーの更新
+                const totalDuration = (createDateFromTimeString(currentEvent.end) - createDateFromTimeString(currentEvent.start)) / 1000;
+                const elapsed = totalDuration - remaining_sec_total;
+                const progressPercent = Math.min(100, Math.max(0, (elapsed / totalDuration) * 100));
+                document.getElementById('progressBar').style.width = progressPercent + '%';
+                
+                // 発表者の表示
+                if (currentEvent.type === 'presentation' && currentEvent.presenter) {
+                    document.getElementById('currentPresenter').style.display = 'block';
+                    document.getElementById('presenterName').textContent = currentEvent.presenter;
+                } else {
+                    document.getElementById('currentPresenter').style.display = 'none';
+                }
+                
+                // 時間警告の視覚的フィードバック
+                if (remaining_sec_total <= 60) {
+                    document.getElementById('countdown').classList.add('time-warning');
+                } else {
+                    document.getElementById('countdown').classList.remove('time-warning');
+                }
+                
+                // 発表の場合のみベルを鳴らす
+                if (currentEvent.type === 'presentation') {
+                    const start = createDateFromTimeString(currentEvent.start);
+
+                    // 開始時刻のベル
+                    const startFlag = `${currentEvent.name}_start`;
+                    if (now >= start && now < new Date(start.getTime() + 1000) && !playedFlags[startFlag]) {
+                        bell.play().catch(function(error) {
+                            console.log('ベル音の再生に失敗しました:', error);
+                        });
+                        playedFlags[startFlag] = true;
+                    }
+
+                    // 終了1分前のベル
+                    const oneMinFlag = `${currentEvent.name}_1min`;
+                    if (remaining_sec_total === 60 && !playedFlags[oneMinFlag]) {
+                        bell.play().catch(function(error) {
+                            console.log('ベル音の再生に失敗しました:', error);
+                        });
+                        playedFlags[oneMinFlag] = true;
+                    }
+                }
+
+            } else {
+                 document.getElementById('currentEvent').textContent = "時間外です";
+                 document.getElementById('countdown').textContent = "--:--";
+            }
+
+            // 次のイベントを表示
+            let nextEvent = null;
+            if (currentMode === 'live') {
+                const firstEventStart = createDateFromTimeString(schedule[0].start);
+                if(now < firstEventStart) {
+                    nextEvent = schedule[0];
+                } else if (currentEventIndex > -1 && currentEventIndex < schedule.length - 1) {
+                    nextEvent = schedule[currentEventIndex + 1];
+                }
+            } else {
+                // 練習モード
+                if (currentEventIndex < schedule.length - 1) {
+                    nextEvent = schedule[currentEventIndex + 1];
+                }
+            }
+
+            if(nextEvent) {
+                document.getElementById('nextEvent').textContent = `次の予定: ${nextEvent.name} (${nextEvent.start})`;
+            } else {
+                document.getElementById('nextEvent').textContent = "すべての予定が終了しました。";
+            }
+        }
+
+        // モード切り替えのイベントリスナー
+        document.getElementById('liveMode').addEventListener('click', function() {
+            if (currentMode !== 'live') {
+                currentMode = 'live';
+                document.getElementById('liveMode').className = 'active';
+                document.getElementById('practiceMode').className = 'inactive';
+                document.getElementById('practiceControls').style.display = 'none';
+                document.body.classList.remove('practice-mode');
+                document.getElementById('emergencyStop').style.display = 'block';
+                
+                // 練習タイマーを停止
+                if (practiceTimer) {
+                    clearInterval(practiceTimer);
+                    practiceTimer = null;
+                }
+                isPracticeRunning = false;
+                
+                // 本番タイマーを開始
+                if (!window.liveTimer) {
+                    window.liveTimer = setInterval(updateTimer, 1000);
+                }
+            }
+        });
+
+        document.getElementById('practiceMode').addEventListener('click', function() {
+            if (currentMode !== 'practice') {
+                currentMode = 'practice';
+                document.getElementById('practiceMode').className = 'active';
+                document.getElementById('liveMode').className = 'inactive';
+                document.getElementById('practiceControls').style.display = 'block';
+                document.body.classList.add('practice-mode');
+                document.getElementById('emergencyStop').style.display = 'none';
+                
+                // 本番タイマーを停止
+                if (window.liveTimer) {
+                    clearInterval(window.liveTimer);
+                    window.liveTimer = null;
+                }
+                
+                // 練習タイマーを開始
+                if (!practiceTimer) {
+                    practiceTimer = setInterval(updateTimer, 1000);
+                }
+                
+                // 練習モードの初期化
+                practiceElapsedTime = 0;
+                isPracticeRunning = false;
+                practiceBellFlags = { sevenMin: false, eightMin: false };
+            }
+        });
+
+        // 練習モード用コントロール
+        document.getElementById('startPractice').addEventListener('click', function() {
+            if (!isPracticeRunning) {
+                isPracticeRunning = true;
+                practiceStartTime = Date.now();
+                practiceBellFlags = { sevenMin: false, eightMin: false };
+                this.textContent = '⏸️ 一時停止';
+                this.className = 'pause-btn';
+            } else {
+                isPracticeRunning = false;
+                this.textContent = '▶️ 再開';
+                this.className = 'start-btn';
+            }
+        });
+
+        document.getElementById('resetPractice').addEventListener('click', function() {
+            practiceElapsedTime = 0;
+            isPracticeRunning = false;
+            practiceBellFlags = { sevenMin: false, eightMin: false };
+            document.getElementById('startPractice').textContent = '▶️ 開始';
+            document.getElementById('startPractice').className = 'start-btn';
+        });
+
+        // 緊急停止機能
+        let isEmergencyStopped = false;
+        document.getElementById('emergencyStop').addEventListener('click', function() {
+            if (isEmergencyStopped) {
+                // 緊急停止を解除
+                isEmergencyStopped = false;
+                this.textContent = '⏹️ 緊急停止';
+                this.style.backgroundColor = '#dc3545';
+                document.getElementById('currentEvent').textContent = '発表再開';
+                document.getElementById('countdown').textContent = '--:--';
+                document.getElementById('progressBar').style.width = '0%';
+                document.getElementById('currentPresenter').style.display = 'none';
+            } else {
+                // 緊急停止
+                isEmergencyStopped = true;
+                this.textContent = '▶️ 再開';
+                this.style.backgroundColor = '#28a745';
+                document.getElementById('currentEvent').textContent = '⚠️ 緊急停止中';
+                document.getElementById('countdown').textContent = 'STOP';
+                document.getElementById('progressBar').style.width = '0%';
+                document.getElementById('currentPresenter').style.display = 'none';
+            }
+        });
+
+        // キーボードショートカット
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape' && isLarge) {
+                timerContainer.classList.remove('large');
+                overlay.classList.remove('active');
+                toggleLargeBtn.textContent = 'タイマー拡大';
+                isLarge = false;
+            }
+            
+            // スペースキーで緊急停止/再開
+            if (event.code === 'Space' && currentMode === 'live') {
+                event.preventDefault();
+                document.getElementById('emergencyStop').click();
+            }
+            
+            // Fキーでフルスクリーン
+            if (event.key === 'f' || event.key === 'F') {
+                event.preventDefault();
+                document.getElementById('toggleLarge').click();
+            }
+            
+            // Rキーでリセット（練習モード）
+            if ((event.key === 'r' || event.key === 'R') && currentMode === 'practice') {
+                event.preventDefault();
+                document.getElementById('resetPractice').click();
+            }
+        });
+
+        // スケジュール編集機能
+        function createScheduleEditor() {
+            const editor = document.getElementById('scheduleEditor');
+            editor.innerHTML = '';
+            
+            schedule.forEach((item, index) => {
+                const row = document.createElement('div');
+                row.className = 'schedule-row';
+                row.innerHTML = `
+                    <input type="text" placeholder="時間 (例: 11:00-11:08)" value="${item.start}-${item.end}" data-field="time" data-index="${index}">
+                    <input type="text" placeholder="発表名" value="${item.name}" data-field="name" data-index="${index}">
+                    <input type="text" placeholder="発表者名 (任意)" value="${item.presenter}" data-field="presenter" data-index="${index}">
+                    <button class="remove-btn" onclick="removeScheduleRow(${index})">🗑️</button>
+                `;
+                editor.appendChild(row);
+            });
+        }
+
+        function removeScheduleRow(index) {
+            if (schedule.length > 1) {
+                schedule.splice(index, 1);
+                createScheduleEditor();
+            }
+        }
+
+        function addScheduleRow() {
+            schedule.push({
+                name: "新しい発表",
+                start: "00:00",
+                end: "00:08",
+                type: "presentation",
+                presenter: ""
+            });
+            createScheduleEditor();
+        }
+
+        function saveSchedule() {
+            const inputs = document.querySelectorAll('#scheduleEditor input');
+            const newSchedule = [];
+            
+            for (let i = 0; i < inputs.length; i += 3) {
+                const timeInput = inputs[i];
+                const nameInput = inputs[i + 1];
+                const presenterInput = inputs[i + 2];
+                
+                if (timeInput && nameInput) {
+                    const timeValue = timeInput.value;
+                    const timeParts = timeValue.split('-');
+                    
+                    if (timeParts.length === 2) {
+                        newSchedule.push({
+                            name: nameInput.value || "発表",
+                            start: timeParts[0].trim(),
+                            end: timeParts[1].trim(),
+                            type: "presentation",
+                            presenter: presenterInput ? presenterInput.value : ""
+                        });
+                    }
+                }
+            }
+            
+            if (newSchedule.length > 0) {
+                schedule = newSchedule;
+                updateScheduleTable();
+                document.getElementById('editSchedule').style.display = 'none';
+                document.getElementById('scheduleTable').style.display = 'table';
+            }
+        }
+
+        function updateScheduleTable() {
+            const tbody = document.querySelector('#scheduleTable tbody');
+            tbody.innerHTML = '';
+            
+            schedule.forEach(item => {
+                const row = document.createElement('tr');
+                const timeText = `${item.start}-${item.end}`;
+                const presenterText = item.presenter || '';
+                
+                row.innerHTML = `
+                    <td>${timeText}</td>
+                    <td>${item.name}</td>
+                    <td>${presenterText}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // スケジュール編集ボタンのイベントリスナー
+        document.getElementById('editScheduleBtn').addEventListener('click', function() {
+            document.getElementById('editSchedule').style.display = 'block';
+            document.getElementById('scheduleTable').style.display = 'none';
+            createScheduleEditor();
+        });
+
+        document.getElementById('saveSchedule').addEventListener('click', saveSchedule);
+        document.getElementById('cancelEdit').addEventListener('click', function() {
+            document.getElementById('editSchedule').style.display = 'none';
+            document.getElementById('scheduleTable').style.display = 'table';
+        });
+
+        document.getElementById('addScheduleRow').addEventListener('click', addScheduleRow);
+
+        // 初期化
+        window.liveTimer = setInterval(updateTimer, 1000);
+        updateTimer(); // ページ読み込み時に即時実行
+
+        // ベル音テストボタンのイベントリスナー
+        document.getElementById('testBell').addEventListener('click', function() {
+            bell.play().catch(function(error) {
+                console.log('ベル音の再生に失敗しました:', error);
+                alert('ベル音の再生に失敗しました。ブラウザの設定を確認してください。');
+            });
+        });
+
+        // タイマー拡大ボタンのイベントリスナー
+        const timerContainer = document.querySelector('.timer-container');
+        const overlay = document.getElementById('overlay');
+        const toggleLargeBtn = document.getElementById('toggleLarge');
+        let isLarge = false;
+
+        toggleLargeBtn.addEventListener('click', function() {
+            if (isLarge) {
+                // 通常サイズに戻す
+                timerContainer.classList.remove('large');
+                overlay.classList.remove('active');
+                toggleLargeBtn.textContent = 'タイマー拡大';
+                isLarge = false;
+            } else {
+                // 拡大表示
+                timerContainer.classList.add('large');
+                overlay.classList.add('active');
+                toggleLargeBtn.textContent = 'タイマー縮小';
+                isLarge = true;
+            }
+        });
+
+        // オーバーレイクリックで縮小
+        overlay.addEventListener('click', function() {
+            if (isLarge) {
+                timerContainer.classList.remove('large');
+                overlay.classList.remove('active');
+                toggleLargeBtn.textContent = 'タイマー拡大';
+                isLarge = false;
+            }
+        });
+
+        // ESCキーで縮小
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape' && isLarge) {
+                timerContainer.classList.remove('large');
+                overlay.classList.remove('active');
+                toggleLargeBtn.textContent = 'タイマー拡大';
+                isLarge = false;
+            }
+        });
+    </script>
+
+</body>
+</html>
