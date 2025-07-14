@@ -409,8 +409,8 @@
           }
           .mobile-tabs {
             display: flex;
-            width: 100vw;
-            max-width: 100vw;
+            width: 100%;
+            max-width: 100%;
             position: fixed;
             top: 0;
             left: 0;
@@ -437,19 +437,21 @@
           .mobile-tab-content {
             margin-top: 60px;
             padding: 10px;
-            width: 100vw;
-            max-width: 100vw;
+            width: 100%;
+            max-width: 100%;
             box-sizing: border-box;
           }
           .mobile-timer, .mobile-schedule {
             display: none;
+            width: 100% !important;
+            max-width: 100% !important;
           }
           .mobile-timer.active, .mobile-schedule.active {
             display: block;
           }
           .timer-container, .right-section, .left-section {
-            max-width: 100vw !important;
-            width: 100vw !important;
+            max-width: 100% !important;
+            width: 100% !important;
             border-radius: 0 !important;
             box-shadow: none !important;
             margin: 0 !important;
