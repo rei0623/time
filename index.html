@@ -561,6 +561,25 @@
           }
         }
     </style>
+    <!-- スマホ用CSSのテーマ表示強調 -->
+    <style>
+    @media (max-width: 600px) {
+      .mobile-timer .theme-big {
+        font-size: 1.1em;
+        color: #333;
+        text-align: center;
+        margin-bottom: 18px;
+        font-weight: bold;
+        letter-spacing: 0.5px;
+      }
+      .mobile-schedule-card .theme {
+        color: #222;
+        font-size: 1.1em;
+        font-weight: bold;
+        margin-top: 2px;
+      }
+    }
+    </style>
 </head>
 <body>
 
@@ -627,37 +646,38 @@
                 </div>
             </div>
             
+            <!-- テーブル部分 -->
             <table id="scheduleTable">
-        <thead>
-            <tr>
-                <th>時間</th>
-                <th>発表版</th>
-                <th>テーマ</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr><td>10:55-11:00</td><td></td><td>オープニングセレモニー</td></tr>
-            <tr><td>11:00-11:08</td><td>1班</td><td></td></tr>
-            <tr><td>11:08-11:16</td><td>2班</td><td></td></tr>
-            <tr><td>11:16-11:24</td><td>3班</td><td></td></tr>
-            <tr><td>11:24-11:32</td><td>4班</td><td></td></tr>
-            <tr><td>11:32-11:40</td><td>5班</td><td></td></tr>
-            <tr><td>11:40-11:48</td><td>6班</td><td></td></tr>
-            <tr><td>11:48-11:56</td><td>7班</td><td></td></tr>
-            <tr><td>11:56-12:04</td><td>8班</td><td></td></tr>
-            <tr><td>12:04-12:12</td><td>9班</td><td></td></tr>
-            <tr><td>12:12-13:20</td><td></td><td>(休憩)</td></tr>
-            <tr><td>13:20-13:28</td><td>10班</td><td></td></tr>
-            <tr><td>13:28-13:36</td><td>11班</td><td></td></tr>
-            <tr><td>13:36-13:44</td><td>12班</td><td></td></tr>
-            <tr><td>13:44-13:52</td><td>13班</td><td></td></tr>
-            <tr><td>13:52-14:00</td><td>14班</td><td></td></tr>
-            <tr><td>14:00-14:08</td><td>15班</td><td></td></tr>
-            <tr><td>14:08-14:16</td><td>16班</td><td></td></tr>
-            <tr><td>14:16-14:24</td><td>17班</td><td></td></tr>
-            <tr><td>14:24-</td><td></td><td>講評</td></tr>
-            </tbody>
-        </table>
+                <thead>
+                    <tr>
+                        <th>時間</th>
+                        <th>発表班</th>
+                        <th>テーマ</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>10:55-11:00</td><td></td><td>オープニングセレモニー</td></tr>
+                    <tr><td>11:00-11:08</td><td>1班</td><td>AI相談員を創る</td></tr>
+                    <tr><td>11:08-11:16</td><td>2班</td><td>リバイバルを創る ～身近に新しい交流を～</td></tr>
+                    <tr><td>11:16-11:24</td><td>3班</td><td>学びのトランスフォーメーションを創る</td></tr>
+                    <tr><td>11:24-11:32</td><td>4班</td><td>可視化を創る</td></tr>
+                    <tr><td>11:32-11:40</td><td>5班</td><td>「復活」を創る</td></tr>
+                    <tr><td>11:40-11:48</td><td>6班</td><td>音楽を創る</td></tr>
+                    <tr><td>11:48-11:56</td><td>7班</td><td>動きを創る</td></tr>
+                    <tr><td>11:56-12:04</td><td>8班</td><td>散歩道を創る</td></tr>
+                    <tr><td>12:04-12:12</td><td>9班</td><td>大宮キャンパスでSDGs的な取り組みを創る</td></tr>
+                    <tr><td>12:12-13:20</td><td></td><td>お昼休憩</td></tr>
+                    <tr><td>13:20-13:28</td><td>10班</td><td>循環型林業（木材利用で森林を創る）</td></tr>
+                    <tr><td>13:28-13:36</td><td>11班</td><td>誰もが楽しめる障がい者スポーツを創る</td></tr>
+                    <tr><td>13:36-13:44</td><td>12班</td><td>ハラスメントに寛容な社会を創る</td></tr>
+                    <tr><td>13:44-13:52</td><td>13班</td><td>ファッションを創る</td></tr>
+                    <tr><td>13:52-14:00</td><td>14班</td><td>システム理工学部のPRを創る</td></tr>
+                    <tr><td>14:00-14:08</td><td>15班</td><td>眠気を創る</td></tr>
+                    <tr><td>14:08-14:16</td><td>16班</td><td>癒やしを創る</td></tr>
+                    <tr><td>14:16-14:24</td><td>17班</td><td>生物図鑑を創る</td></tr>
+                    <tr><td>14:24-</td><td></td><td>講評</td></tr>
+                </tbody>
+            </table>
         </div>
     </div>
     
@@ -685,26 +705,26 @@
 
     <script>
         let schedule = [
-            { name: "オープニングセレモニー", start: "10:55:00", end: "11:00:00", type: "other", presenter: "" },
-            { name: "1班 発表", start: "11:00:00", end: "11:08:00", type: "presentation", presenter: "" },
-            { name: "2班 発表", start: "11:08:00", end: "11:16:00", type: "presentation", presenter: "" },
-            { name: "3班 発表", start: "11:16:00", end: "11:24:00", type: "presentation", presenter: "" },
-            { name: "4班 発表", start: "11:24:00", end: "11:32:00", type: "presentation", presenter: "" },
-            { name: "5班 発表", start: "11:32:00", end: "11:40:00", type: "presentation", presenter: "" },
-            { name: "6班 発表", start: "11:40:00", end: "11:48:00", type: "presentation", presenter: "" },
-            { name: "7班 発表", start: "11:48:00", end: "11:56:00", type: "presentation", presenter: "" },
-            { name: "8班 発表", start: "11:56:00", end: "12:04:00", type: "presentation", presenter: "" },
-            { name: "9班 発表", start: "12:04:00", end: "12:12:00", type: "presentation", presenter: "" },
-            { name: "休憩", start: "12:12:00", end: "13:20:00", type: "other", presenter: "" },
-            { name: "10班 発表", start: "13:20:00", end: "13:28:00", type: "presentation", presenter: "" },
-            { name: "11班 発表", start: "13:28:00", end: "13:36:00", type: "presentation", presenter: "" },
-            { name: "12班 発表", start: "13:36:00", end: "13:44:00", type: "presentation", presenter: "" },
-            { name: "13班 発表", start: "13:44:00", end: "13:52:00", type: "presentation", presenter: "" },
-            { name: "14班 発表", start: "13:52:00", end: "14:00:00", type: "presentation", presenter: "" },
-            { name: "15班 発表", start: "14:00:00", end: "14:08:00", type: "presentation", presenter: "" },
-            { name: "16班 発表", start: "14:08:00", end: "14:16:00", type: "presentation", presenter: "" },
-            { name: "17班 発表", start: "14:16:00", end: "14:24:00", type: "presentation", presenter: "" },
-            { name: "講評", start: "14:24:00", end: "15:00:00", type: "other", presenter: "" }
+            { name: "オープニングセレモニー", start: "10:55:00", end: "11:00:00", type: "other", presenter: "", theme: "オープニングセレモニー" },
+            { name: "1班", start: "11:00:00", end: "11:08:00", type: "presentation", presenter: "", theme: "AI相談員を創る" },
+            { name: "2班", start: "11:08:00", end: "11:16:00", type: "presentation", presenter: "", theme: "リバイバルを創る ～身近に新しい交流を～" },
+            { name: "3班", start: "11:16:00", end: "11:24:00", type: "presentation", presenter: "", theme: "学びのトランスフォーメーションを創る" },
+            { name: "4班", start: "11:24:00", end: "11:32:00", type: "presentation", presenter: "", theme: "可視化を創る" },
+            { name: "5班", start: "11:32:00", end: "11:40:00", type: "presentation", presenter: "", theme: "「復活」を創る" },
+            { name: "6班", start: "11:40:00", end: "11:48:00", type: "presentation", presenter: "", theme: "音楽を創る" },
+            { name: "7班", start: "11:48:00", end: "11:56:00", type: "presentation", presenter: "", theme: "動きを創る" },
+            { name: "8班", start: "11:56:00", end: "12:04:00", type: "presentation", presenter: "", theme: "散歩道を創る" },
+            { name: "9班", start: "12:04:00", end: "12:12:00", type: "presentation", presenter: "", theme: "大宮キャンパスでSDGs的な取り組みを創る" },
+            { name: "お昼休憩", start: "12:12:00", end: "13:20:00", type: "other", presenter: "", theme: "お昼休憩" },
+            { name: "10班", start: "13:20:00", end: "13:28:00", type: "presentation", presenter: "", theme: "循環型林業（木材利用で森林を創る）" },
+            { name: "11班", start: "13:28:00", end: "13:36:00", type: "presentation", presenter: "", theme: "誰もが楽しめる障がい者スポーツを創る" },
+            { name: "12班", start: "13:36:00", end: "13:44:00", type: "presentation", presenter: "", theme: "ハラスメントに寛容な社会を創る" },
+            { name: "13班", start: "13:44:00", end: "13:52:00", type: "presentation", presenter: "", theme: "ファッションを創る" },
+            { name: "14班", start: "13:52:00", end: "14:00:00", type: "presentation", presenter: "", theme: "システム理工学部のPRを創る" },
+            { name: "15班", start: "14:00:00", end: "14:08:00", type: "presentation", presenter: "", theme: "眠気を創る" },
+            { name: "16班", start: "14:08:00", end: "14:16:00", type: "presentation", presenter: "", theme: "癒やしを創る" },
+            { name: "17班", start: "14:16:00", end: "14:24:00", type: "presentation", presenter: "", theme: "生物図鑑を創る" },
+            { name: "講評", start: "14:24:00", end: "15:00:00", type: "other", presenter: "", theme: "講評" }
         ];
         
         // 通知再生済みフラグ
@@ -1048,7 +1068,8 @@
                 start: "00:00",
                 end: "00:08",
                 type: "presentation",
-                presenter: ""
+                presenter: "",
+                theme: "新しい発表"
             });
             createScheduleEditor();
         }
@@ -1072,7 +1093,8 @@
                             start: timeParts[0].trim(),
                             end: timeParts[1].trim(),
                             type: "presentation",
-                            presenter: presenterInput ? presenterInput.value : ""
+                            presenter: presenterInput ? presenterInput.value : "",
+                            theme: "新しい発表" // テーマはデフォルトで"新しい発表"
                         });
                     }
                 }
@@ -1098,7 +1120,7 @@
                 row.innerHTML = `
                     <td>${timeText}</td>
                     <td>${item.name}</td>
-                    <td>${presenterText}</td>
+                    <td>${item.theme}</td>
                 `;
                 tbody.appendChild(row);
             });
@@ -1251,11 +1273,11 @@ function renderMobileTimer() {
   // HTML生成
   let html = '';
   html += `<div class='event-big'>${currentEvent ? currentEvent.name : '開始までお待ちください...'}</div>`;
+  if(currentEvent && currentEvent.theme) {
+    html += `<div class='theme-big'>${currentEvent.theme}</div>`;
+  }
   html += `<div class='countdown-big'>${countdown}</div>`;
   html += `<div class='progress-container'><div class='progress-bar' style='width:${progress}%;'></div></div>`;
-  if(currentEvent && currentEvent.presenter) {
-    html += `<div class='presenter-mobile'>発表者: ${currentEvent.presenter}</div>`;
-  }
   document.getElementById('mobileTimer').innerHTML = html;
 }
 function renderMobileSchedule() {
@@ -1276,7 +1298,7 @@ function renderMobileSchedule() {
     html += `<li class='mobile-schedule-card ${active}'>`;
     html += `<div class='time'>${item.start} - ${item.end}</div>`;
     html += `<div class='name'>${item.name}</div>`;
-    if(item.presenter) html += `<div class='presenter'>${item.presenter}</div>`;
+    if(item.theme) html += `<div class='theme'>${item.theme}</div>`;
     html += `</li>`;
   });
   html += '</ul>';
